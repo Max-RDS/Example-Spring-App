@@ -1,5 +1,12 @@
 pipeline {
     agent none
+
+    environment {
+        DOCKER_HUB_USERNAME = credentials('Docker username')
+        DOCKER_HUB_PASSWORD = credentials('Docker_hub_token')
+        CURRENT_COMMIT = "test"
+    }
+
     stages {
         stage('Unit tests') {
             agent {
@@ -13,5 +20,25 @@ pipeline {
                 sh './mvnw test'
             }
         }
+
+        stage('Build') {
+            agent any
+            when {
+                beforeAgent true
+                branch 'main'
+            }
+            steps {
+                sh 'echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin'
+                sh 'docker build -t $DOCKER_HUB_USERNAME/testjava:$CURRENT_COMMIT .'
+                sh 'docker push $DOCKER_HUB_USERNAME/testjava:$CURRENT_COMMIT'
+                sh 'docker logout'
+            }
+        }
+    }
+}
+
+def getCommitHash() {
+    node {
+        return sh(script: 'git rev-parse --short HEAD', returnStdout: true)
     }
 }
