@@ -14,7 +14,8 @@
 	<name>exampleApp</name>
 	<description>Demo project for CI CD class</description>
 	<properties>
-		
+	<sonar.organization>max-rds</sonar.organization>
+  	<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 	<dependencies>
 		<dependency>
